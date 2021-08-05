@@ -1,28 +1,71 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <el-container class="m3 m3config">
+    <el-header>
+        <Header :auth="auth" v-if="auth"></Header>
+      </el-header>
+    <el-main>
+      <MainView :global="global" v-if="global"></MainView>
+    </el-main>
+    <el-footer>
+        <Footer :auth="auth" v-if="auth"></Footer>
+    </el-footer>
+  </el-container>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+import MainView from './components/MainView';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
 
 export default {
-  name: 'App',
+  name: 'app',
   components: {
-    HelloWorld
+    Header,
+    MainView,
+    Footer
+  },
+  data(){
+    return {
+      global:null,
+      auth: null
+    }
+  },
+  mounted(){
+    setTimeout(()=>{
+      this.global = this.m3.global;
+      this.auth = this.m3.auth.signedUser;
+    },500)
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  body{
+    overflow: hidden!important;
+    font-size: 12px;
+    font-family: "PingFang SC",Arial,"Microsoft YaHei",sans-serif;
+    margin: 0px;
+    padding: 0px;
+  }
+  
+  .el-menu .svg-icon{
+    width: 1.2em!important;
+    height: 1.2em!important;
+    padding: 0px 5px 0 0;
+  }
+
+.gutter {
+    background-color: #eee;
+
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+.gutter.gutter-vertical {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
 }
 </style>
