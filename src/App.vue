@@ -1,15 +1,12 @@
 <template>
-  <el-container class="m3 m3config">
-    <el-header>
-        <Header :auth="auth" v-if="auth"></Header>
-      </el-header>
-    <el-main>
-      <MainView :global="global" v-if="global"></MainView>
-    </el-main>
-    <el-footer>
-        <Footer :auth="auth" v-if="auth"></Footer>
-    </el-footer>
-  </el-container>
+  <div class="m3 m3appstroe">
+    <Header :auth="auth" v-if="auth" class="header"></Header>
+    <div class="main">
+      <SideBar v-if="auth" class="sidebar" :auth="auth" :global="global"></SideBar>
+      <MainView :global="global" v-if="global" class="content"></MainView>
+    </div>
+    <Footer :auth="auth" v-if="auth" class="footer"></Footer>
+  </div>
 </template>
 
 <script>
@@ -17,13 +14,15 @@
 import MainView from './components/MainView';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import SideBar from './components/layout/SideBar';
 
 export default {
   name: 'app',
   components: {
     Header,
     MainView,
-    Footer
+    Footer,
+    SideBar
   },
   data(){
     return {
@@ -42,11 +41,11 @@ export default {
 
 <style>
   body{
-    overflow: hidden!important;
     font-size: 12px;
     font-family: "PingFang SC",Arial,"Microsoft YaHei",sans-serif;
     margin: 0px;
     padding: 0px;
+    overflow-y: hidden;
   }
   
   .el-menu .svg-icon{
@@ -67,5 +66,10 @@ export default {
 
 .gutter.gutter-horizontal {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+}
+
+.main{
+  padding-top: 50px;
+  display: flex;
 }
 </style>

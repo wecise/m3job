@@ -87,7 +87,7 @@
         color: #888888;
         height: 30px;
         line-height:30px;
-        position: absolute;
+        position: fixed;
         bottom: 0px;
         line-height: 30px;
         right: 50px;

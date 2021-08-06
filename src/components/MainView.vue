@@ -1,6 +1,6 @@
 <template>
 
-  <AppView style="height:calc(100vh - 50px);"></AppView>
+  <AppView ></AppView>
   
 </template>
 
