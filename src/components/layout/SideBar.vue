@@ -9,16 +9,16 @@
             class="el-menu-vertical-sidebar"
             text-color="#fff"
             active-text-color="#ffd04b"
-            v-if="auth">
+            v-if="auth && model">
 
-        <el-menu-item index="toggle" style="display:">
+        <!-- <el-menu-item index="toggle" style="display:">
             <i :class="isCollapse?'el-icon-s-unfold':'el-icon-s-fold'" style="width:16px;color:#fff;"></i>
         </el-menu-item>
 
         <el-menu-item index="apps" v-if="auth.Company.name == 'wecise'">
             <img :src="preFixIcon+'app.png'+postFixIcon" style="width:16px;"></img> 
             <span style="padding-left:5px;" slot="title">应用</span>
-        </el-menu-item>
+        </el-menu-item> -->
         
         <el-menu-item index="/">
             <img :src="preFixIcon+'home.png'+postFixIcon" style="width:16px;"></img>
@@ -37,9 +37,9 @@
                 <el-menu-item :class="subItem.status" :index="subItem.url" v-for="subItem in item.groups"  :key="subItem.name">
                     <img :src="subItem.icon | pickIcon" style="width:16px;"></img>
                     <span slot="title">
-                        <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh-CN'">{{subItem.cnname}}</span>
+                        <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh_CN'">{{subItem.cnname}}</span>
                         <span style="padding-left:5px;" v-else>{{subItem.enname}}</span>
-                        <el-tooltip content="在新窗口中打开" open-delay="500"  placement="right-start">
+                        <el-tooltip content="在新窗口中打开" placement="right-start">
                             <el-button type="text" icon="el-icon-position" @click.stop.prevent="onClick(subItem.url)" style="float:right;transform:scale(0.6);color:#ffffff;"></el-button>
                         </el-tooltip>
                     </span>
@@ -59,9 +59,9 @@
                 <el-menu-item :class="item.status" :index="item.url" v-for="item in model.list" :key="item.name">
                     <img :src="item.icon | pickIcon" style="width:16px;"></img>
                     <span slot="title">
-                        <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh-CN'">{{item.cnname}}</span>
+                        <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh_CN'">{{item.cnname}}</span>
                         <span style="padding-left:5px;" v-else>{{item.enname}}</span>
-                        <el-tooltip content="在新窗口中打开" open-delay="500"  placement="right-start">
+                        <el-tooltip content="在新窗口中打开" placement="right-start">
                             <el-button type="text" icon="el-icon-position" @click.stop.prevent="onClick(item.url)" style="float:right;transform:scale(0.6);color:#ffffff;"></el-button>
                         </el-tooltip>
                     </span>
@@ -73,9 +73,9 @@
         <el-menu-item :class="item.status" :index="item.url" v-for="item in model.list" :key="item.name" v-show="sideBarStatus === 2">
             <img :src="item.icon | pickIcon" style="width:16px;"></img>
             <span slot="title">
-                <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh-CN'">{{item.cnname}}</span>
+                <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh_CN'">{{item.cnname}}</span>
                 <span style="padding-left:5px;" v-else>{{item.enname}}</span>
-                <el-tooltip content="在新窗口中打开" open-delay="500"  placement="right-start">
+                <el-tooltip content="在新窗口中打开" placement="right-start">
                     <el-button type="text" icon="el-icon-position" @click.stop.prevent="onClick(item.url)" style="float:right;transform:scale(0.6);color:#ffffff;"></el-button>
                 </el-tooltip>
             </span>
@@ -85,13 +85,13 @@
         <el-submenu :class="item.status" :index="item.url" v-for="item in model.appListUnGrouped" :key="item.name">
             <template slot="title">
                 <img :src="item.icon | pickIcon" style="width:16px;"></img>
-                <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh-CN'">{{item.cnname}}</span>
+                <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh_CN'">{{item.cnname}}</span>
                 <span style="padding-left:5px;" v-else>{{item.enname}}</span>
             </template>
             <el-menu-item :index="item.url">
-                <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh-CN'">{{item.cnname}}</span>
+                <span style="padding-left:5px;" v-if="global.register.lanuage == 'zh_CN'">{{item.cnname}}</span>
                 <span style="padding-left:5px;" v-else>{{item.enname}}</span>
-                <el-tooltip content="在新窗口中打开" open-delay="500"  placement="right-start">
+                <el-tooltip content="在新窗口中打开" placement="right-start">
                     <el-button type="text" icon="el-icon-position" @click.stop.prevent="onClick(item.url)" style="float:right;transform:scale(0.6);color:#ffffff;"></el-button>
                 </el-tooltip>
             </el-menu-item>

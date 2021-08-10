@@ -1,5 +1,5 @@
 <template>
-  <div class="m3 m3appstroe">
+  <div class="m3">
     <Header :auth="auth" v-if="auth" class="header"></Header>
     <div class="main">
       <SideBar v-if="auth" class="sidebar" :auth="auth" :global="global"></SideBar>
@@ -45,7 +45,7 @@ export default {
     font-family: "PingFang SC",Arial,"Microsoft YaHei",sans-serif;
     margin: 0px;
     padding: 0px;
-    overflow-y: hidden;
+    overflow: hidden;
   }
   
   .el-menu .svg-icon{
@@ -54,22 +54,8 @@ export default {
     padding: 0px 5px 0 0;
   }
 
-.gutter {
-    background-color: #eee;
-
-    background-repeat: no-repeat;
-    background-position: 50%;
-}
-.gutter.gutter-vertical {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
-}
-
-.gutter.gutter-horizontal {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-}
-
-.main{
-  padding-top: 50px;
-  display: flex;
-}
+  .main{
+    padding-top: 50px;
+    display: flex;
+  }
 </style>
