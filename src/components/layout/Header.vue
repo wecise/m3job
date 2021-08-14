@@ -128,7 +128,7 @@ export default{
         padding: 0px 0px 0px 10px;
         position: fixed;
         width: 100%;
-        z-index: 10000;
+        z-index: 1000;
     }
     .light .m3 > .header{
         height: 50px!important;

@@ -5,7 +5,7 @@
                 <el-button type="default" icon="el-icon-refresh" @click="onRefresh">刷新</el-button> 
             </el-tooltip>
             <el-tooltip content="应用发布">
-                <el-button type="success" icon="el-icon-plug" @click="dialog.appDeploy.show = true">应用发布</el-button>
+                <el-button type="success" icon="el-icon-plug" @click="onNewAppDeploy">应用发布</el-button>
             </el-tooltip>
 
         </el-header>
@@ -33,8 +33,8 @@
                             <div style="height:30px;line-height:30px;" v-if="item.field=='tags'">
                                 <TagView domain='app' :model.sync="scope.row.tags" :id="scope.row.id" :limit="1"></TagView>
                             </div>
-                            <div style="height:30px;line-height:30px;" v-else-if="item.field=='icon'">
-                                <span :class="scope.row.icon + ' app-icon'"></span>
+                            <div style="height:30px;line-height:30px;" v-else-if="item.field=='appicon'">
+                                <span :class="scope.row.appicon + ' app-icon'"></span>
                             </div>
                             <div style="height:30px;line-height:30px;" v-else-if="item.field=='rate'">
                                 <el-rate v-model="scope.row.rate" disabled></el-rate>
@@ -48,7 +48,7 @@
                         </template>
                     </el-table-column>
                 </template>
-                <el-table-column label="操作" width="120">
+                <el-table-column label="操作" width="120" fixed="right">
                     <template slot-scope="scope">
                         <el-button @click.native.prevent="onAppDeployEdit(scope.$index, scope.row)" type="text">编辑</el-button>
                         <el-button @click.native.prevent="onAppDeployDelete(scope.$index, scope.row)" type="text">删除</el-button>
@@ -122,7 +122,7 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="安装次数" prop="count">
-                                <el-input-number v-model="dialog.appDeploy.data.count" :step="1"></el-input-number>
+                                <el-input v-model="dialog.appDeploy.data.count" disabled></el-input>
                             </el-form-item>
                             <el-form-item label="所属公司" prop="company">
                                 <el-input v-model="dialog.appDeploy.data.company"></el-input>
@@ -144,7 +144,7 @@
                                     v-model="dialog.appDeploy.data.ctime"
                                     type="datetime"
                                     placeholder="选择日期时间"
-                                    default-time="12:00:00">
+                                    default-time="12:00:00" disabled>
                                 </el-date-picker>
                             </el-form-item>
                             <el-form-item label="修改时间" prop="mtime">
@@ -152,7 +152,7 @@
                                     v-model="dialog.appDeploy.data.mtime"
                                     type="datetime"
                                     placeholder="选择日期时间"
-                                    default-time="12:00:00">
+                                    default-time="12:00:00" disabled>
                                 </el-date-picker>
                             </el-form-item>
                             <el-form-item label="源码宿主" prop="hosting">
@@ -169,8 +169,9 @@
                         </el-tab-pane>
                     </el-tabs>
                     <el-form-item>
-                        <el-button type="primary" @click="onAppDeployHandler">发布</el-button>
-                        <el-button @click="onResetForm('appDeployForm')">重置</el-button>
+                        <el-button type="default" @click="dialog.appDeploy.show = false;">取消</el-button>
+                        <el-button type="default" @click="onResetForm" v-if="dialog.appDeploy.action==='new'">重置</el-button>
+                        <el-button type="primary" @click="onAppDeployHandler" :loading="dialog.appDeploy.loading">发布</el-button>
                     </el-form-item>
                     </el-form>
             </el-dialog>
@@ -203,6 +204,7 @@ export default {
             },
             dialog: {
                 appDeploy:{
+                    loading: false,
                     show: false,
                     files: null,
                     action: 'new',
@@ -228,7 +230,6 @@ export default {
                         ctime: _.now(),
                         mtime: _.now(),
                         hosting: ''
-
                     },
                     rules: {
                         name: [
@@ -262,8 +263,8 @@ export default {
         onRefresh(){
             this.initDeployedApp();
         },
-        onResetForm(formName){
-            this.$refs[formName].resetFields();
+        onResetForm(){
+            this.$refs.appDeployForm.resetFields();
         },
         initDeployedApp(){
             let param = encodeURIComponent( JSON.stringify({action: 'r', param: null}) );
@@ -293,16 +294,63 @@ export default {
             })
         },
         // App Deploy
+        onNewAppDeploy(){
+            this.dialog.appDeploy.action = 'new';
+            this.dialog.appDeploy.data = {
+                                            name: '',
+                                            status: '0',
+                                            title: '',
+                                            version: '',
+                                            desc: '',
+                                            rate: 0,
+                                            size: 0,
+                                            language: '',
+                                            client_type: '0',
+                                            deploy_type: '0',
+                                            price: 0.00,
+                                            strategy: '',
+                                            count: 0,
+                                            company: '',
+                                            company_desc: '',
+                                            author: '',
+                                            tester: '',
+                                            auditor: '',
+                                            ctime: _.now(),
+                                            mtime: _.now(),
+                                            hosting: ''
+                                        };    
+            this.dialog.appDeploy.show = true;
+        },
         onAppDeployFilesChange(file){
             this.dialog.appDeploy.data.name = file.name;
             this.dialog.appDeploy.data.size = file.size;
+            this.dialog.appDeploy.file = file.raw;
         },
         onAppDeployHandler(){
+            
+            this.dialog.appDeploy.loading = true;
+            
             let action = this.dialog.appDeploy.action === 'new' ? 'c' : 'u';
+            
+            // to class
             let param = encodeURIComponent( JSON.stringify({action: action, param: this.dialog.appDeploy.data}) );
             this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( rtn=>{
                 this.dialog.appDeploy.show = false;
+                this.dialog.appDeploy.show = false;
                 this.initDeployedApp();
+
+                // to dfs
+                if(action === 'c'){
+                    let file = this.dialog.appDeploy.file;
+                    this.m3.dfsUnZip(this.dialog.appDeploy.data, file).then( rtn=>{
+                        console.log(rtn)
+                        this.dialog.appDeploy.loading = false;
+                    });
+                } else {
+                    this.dialog.appDeploy.loading = false;
+                }
+            }).catch(()=>{
+                this.dialog.appDeploy.loading = false;
             });
         },
         onAppDeployEdit(index,row){
@@ -319,24 +367,16 @@ export default {
                 type: 'warning'
                 }).then(() => {
 
-                /* this.m3.dfsDelete(row.parent,row.name).then( (rtn)=>{
-                    if (rtn == 1){
-                        this.$message({
-                            type: "success",
-                            message: "取消发布成功！"
-                        });
-                        this.onRefresh();
-                    } else {
-                        this.$message({
-                            type: "error",
-                            message: "取消发布失败 " + rtn.message
-                        })
-                    }
-                } ); */
-
+                // in class
                 let param = encodeURIComponent( JSON.stringify({action: 'd', param: row}) );
                 this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( rtn=>{
+                    
                     this.initDeployedApp();
+
+                    // in dfs
+                    this.m3.dfsDelete({parent:row.parent,name:row.name}).then( (rtn)=>{
+                        
+                    });
                 });
 
             }).catch(()=> {

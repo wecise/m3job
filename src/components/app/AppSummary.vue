@@ -8,7 +8,7 @@
                     v-for="(app,index) in summary.today"
                     :key="index">
                     <el-image style="width:64px;height:64px;margin:5px;" src="/static/assets/images/apps/png/m3-app.png"></el-image>
-                    <p style="color:#333333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px;text-align:center;">{{app.name}}</p>
+                    <p style="color:#333333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px;text-align:center;">{{app.title || app.name}}</p>
                 </el-button>
             </div>
         </template>
@@ -20,7 +20,7 @@
                     v-for="(app,index) in summary.week"
                     :key="index">
                     <el-image style="width:64px;height:64px;margin:5px;" src="/static/assets/images/apps/png/m3-app.png"></el-image>
-                    <p style="color:#333333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px;text-align:center;">{{app.name}}</p>
+                    <p style="color:#333333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px;text-align:center;">{{app.title || app.name}}</p>
                 </el-button>
             </div>
         </template>
@@ -32,7 +32,7 @@
                     v-for="(app,index) in summary.month"
                     :key="index">
                     <el-image style="width:64px;height:64px;margin:5px;" src="/static/assets/images/apps/png/m3-app.png"></el-image>
-                    <p style="color:#333333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px;text-align:center;">{{app.name}}</p>
+                    <p style="color:#333333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px;text-align:center;">{{app.title || app.name}}</p>
                 </el-button>
             </div>
         </template>
