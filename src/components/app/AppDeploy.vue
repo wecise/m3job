@@ -99,6 +99,9 @@
                             <el-form-item label="应用描述" prop="desc">
                                 <el-input type="textarea" v-model="dialog.appDeploy.data.desc"></el-input>
                             </el-form-item>
+                            <el-form-item label="文件系统" prop="dfs">
+                                <el-input v-model="dialog.appDeploy.data.dfs" disabled></el-input>
+                            </el-form-item>
                         </el-tab-pane>
                         <el-tab-pane label="管理信息" name="third">
                             <el-form-item label="评分" prop="rate">
@@ -214,6 +217,7 @@ export default {
                         title: '',
                         version: '',
                         desc: '',
+                        dfs: '',
                         rate: 0,
                         size: 0,
                         language: '',
@@ -302,6 +306,7 @@ export default {
                                             title: '',
                                             version: '',
                                             desc: '',
+                                            dfs: '',
                                             rate: 0,
                                             size: 0,
                                             language: '',
@@ -331,27 +336,31 @@ export default {
             this.dialog.appDeploy.loading = true;
             
             let action = this.dialog.appDeploy.action === 'new' ? 'c' : 'u';
-            
-            // to class
-            let param = encodeURIComponent( JSON.stringify({action: action, param: this.dialog.appDeploy.data}) );
-            this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( rtn=>{
-                this.dialog.appDeploy.show = false;
-                this.dialog.appDeploy.show = false;
-                this.initDeployedApp();
 
-                // to dfs
-                if(action === 'c'){
-                    let file = this.dialog.appDeploy.file;
-                    this.m3.dfsUnZip(this.dialog.appDeploy.data, file).then( rtn=>{
-                        console.log(rtn)
-                        this.dialog.appDeploy.loading = false;
-                    });
-                } else {
+            // to class
+            let toClass = ()=>{
+                let param = encodeURIComponent( JSON.stringify({action: action, param: this.dialog.appDeploy.data}) );
+                this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( rtn=>{
+                    this.dialog.appDeploy.show = false;
+                    this.dialog.appDeploy.show = false;
+                    this.initDeployedApp();
+                }).catch((err)=>{
+                    console.error(err);
                     this.dialog.appDeploy.loading = false;
-                }
-            }).catch(()=>{
-                this.dialog.appDeploy.loading = false;
-            });
+                });
+            }
+            
+            // to dfs
+            if(action === 'c'){
+                let file = this.dialog.appDeploy.file;
+                this.m3.dfsUnZip(this.dialog.appDeploy.data, file).then( rtn=>{
+                    this.dialog.appDeploy.data.dfs = rtn.message[0];
+                    toClass();
+                });
+            } else {
+                toClass();
+            }
+            
         },
         onAppDeployEdit(index,row){
             this.dialog.appDeploy.action = 'edit';
@@ -360,7 +369,7 @@ export default {
             this.dialog.appDeploy.show = true;
         },
         onAppDeployDelete(index,row){
-            console.log(row)
+            
             this.$confirm(`确定要取消发布应用 ${row.name}?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',

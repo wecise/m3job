@@ -219,9 +219,9 @@ export default {
                 this.model = rtn.message;
             });
 
-            this.m3.callFS("/matrix/m3appstore/getInstalledApps.js",null).then( (rtn)=>{
+            /* this.m3.callFS("/matrix/m3appstore/getInstalledApps.js",null).then( (rtn)=>{
                 this.installedApps.list = rtn.message;
-            });
+            }); */
 
             this.initDeployedApps();
 
