@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-main style="padding:0px;">
-        <el-tabs value="install" type="border-card">
+        <el-tabs value="deploy" type="border-card">
             <el-tab-pane name="deploy">
                 <span slot="label">应用发布</span>
                 <AppDeploy></AppDeploy>

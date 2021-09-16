@@ -47,9 +47,9 @@
                             <el-main style="padding:0px 20px;">
                                 <el-form ref="form" :model="dialog.appInstall.data" label-width="80px" >
                                     <el-form-item label="应用类型">
-                                        <el-radio-group v-model="dialog.appInstall.data.selected">
-                                            <el-radio :label="0">小应用</el-radio>
-                                            <el-radio :label="1">URL</el-radio>
+                                        <el-radio-group v-model="dialog.appInstall.data.selected" :disabled="dialog.appInstall.action=='edit'?true:false">
+                                            <el-radio label="0">小应用</el-radio>
+                                            <el-radio label="1">URL</el-radio>
                                         </el-radio-group>
                                     </el-form-item>
                                     <el-form-item label="选择应用" v-if="dialog.appInstall.data.selected=='0'">
@@ -59,6 +59,8 @@
                                                 :key="item.id"
                                                 :label="item.name"
                                                 :value="item.id">
+                                                <span style="float: left">{{ item.cnname || item.enname || item.name}} </span>
+                                                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.dfs }}</span>
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
@@ -255,16 +257,29 @@ export default {
                                                 group: ''
                                             }
                                         };
+            
         },
         onAppInstall(item){
-            
-            _.extend(item,{ icon: _.last(this.icon.value.split("/")), action: this.dialog.appInstall.action } );
+
+            if(this.dialog.appInstall.data.selected==0){
+                let deployed = _.find(this.deployedApps.list,{id: this.deployedApps.value});
+                _.extend(item,{ 
+                    icon: _.last(this.icon.value.split("/")), 
+                    action: this.dialog.appInstall.action,
+                    url: `/static${deployed.dfs}/index.html`
+                });
+            } else {
+                _.extend(item,{ 
+                    icon: _.last(this.icon.value.split("/")), 
+                    action: this.dialog.appInstall.action
+                });
+            }
             
             this.m3.callFS("/matrix/m3appstore/app.js",encodeURIComponent(JSON.stringify(item))).then( (rtn)=>{
                 if( _.lowerCase(rtn.status) == "ok"){       
                     this.$message({
                         type: "info",
-                        message: "应用更新成功"
+                        message: "应用安装成功"
                     });
                     
                     this.dialog.appInstall.show = false;
@@ -273,7 +288,7 @@ export default {
         },
         onAppUnInstall(item) {
             
-            this.$confirm(`确认要卸载该应用：${item.name}？`, '提示', {
+            this.$confirm(`确认要卸载该应用：${item.cnname || item.enname || item.name}？`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -284,6 +299,7 @@ export default {
                     if(rtn.status === 'ok'){
                         
                         this.init();
+                        this.dialog.appInstall.show = false;
 
                     } else {
                         this.$message({
@@ -299,11 +315,19 @@ export default {
                     type: "info",
                     message: "取消卸载操作"
                 })
+                this.dialog.appInstall.show = false;
             });
 
         },
         onAppUpdate(data){
             this.dialog.appInstall.action = 'edit';
+            
+            if(_.includes(data.url,'/static')){
+                data.selected = '0';
+            }else{
+                data.selected = '1';
+            }
+            
             this.dialog.appInstall.data = data;
             this.dialog.appInstall.show = true;
         },

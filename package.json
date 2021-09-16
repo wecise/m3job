@@ -8,7 +8,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@wecise/m3js": "^1.0.39",
     "core-js": "^3.6.5",
     "element-ui": "^2.4.5",
     "js-cookie": "^2.2.1",
@@ -23,12 +22,15 @@
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "@wecise/m3js": "^1.0.42",
     "animate.css": "^4.1.1",
     "axios": "^0.18.1",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "file-saver": "^2.0.5",
     "svg-sprite-loader": "^6.0.9",
+    "tapromise": "^1.1.2",
     "vue-cli-plugin-axios": "^0.0.4",
     "vue-cli-plugin-element": "^1.0.1",
     "vue-template-compiler": "^2.6.11",
@@ -47,8 +49,13 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "no-unused-vars":"off",
-      "vue/no-parsing-error": [2, { "x-invalid-end-tag": false }]
+      "no-unused-vars": "off",
+      "vue/no-parsing-error": [
+        2,
+        {
+          "x-invalid-end-tag": false
+        }
+      ]
     }
   },
   "browserslist": [

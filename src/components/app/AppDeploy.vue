@@ -1,5 +1,5 @@
 <template>
-    <el-container style="height:calc(100vh - 120px);">
+    <el-container style="height:calc(100vh - 135px);">
         <el-header style="line-height: 60px;">
             <el-tooltip content="刷新">
                 <el-button type="default" icon="el-icon-refresh" @click="onRefresh">刷新</el-button> 
@@ -9,7 +9,7 @@
             </el-tooltip>
 
         </el-header>
-        <el-main style="overflow:hidden;">
+        <el-main>
             <el-table
                 :data="deploy.dt.rows"
                 :highlight-current-row="true"
@@ -17,7 +17,7 @@
                 ref="table"
                 stripe
                 class="deploy-app-table"
-                style="width:100%;height:100%;"
+                style="width:100%;"
                 v-if="deploy.dt.rows">
                 <template v-for="(item,index) in deploy.dt.columns">
                     <el-table-column 
@@ -33,8 +33,8 @@
                             <div style="height:30px;line-height:30px;" v-if="item.field=='tags'">
                                 <TagView domain='app' :model.sync="scope.row.tags" :id="scope.row.id" :limit="1"></TagView>
                             </div>
-                            <div style="height:30px;line-height:30px;" v-else-if="item.field=='appicon'">
-                                <span :class="scope.row.appicon + ' app-icon'"></span>
+                            <div style="height:30px;line-height:30px;" v-else-if="item.field=='icon'">
+                                <span :class="scope.row.icon + ' app-icon'"></span>
                             </div>
                             <div style="height:30px;line-height:30px;" v-else-if="item.field=='rate'">
                                 <el-rate v-model="scope.row.rate" disabled></el-rate>
@@ -48,10 +48,12 @@
                         </template>
                     </el-table-column>
                 </template>
-                <el-table-column label="操作" width="120" fixed="right">
+                <el-table-column label="操作" width="190" fixed="right">
                     <template slot-scope="scope">
-                        <el-button @click.native.prevent="onAppDeployEdit(scope.$index, scope.row)" type="text">编辑</el-button>
-                        <el-button @click.native.prevent="onAppDeployDelete(scope.$index, scope.row)" type="text">删除</el-button>
+                        <el-button @click.native.prevent="onRunning(scope.row)" type="text" class="action-btn"><span class="el-icon-platform-eleme" style="color:#4caf50;"></span> 运行</el-button>
+                        <el-button @click.native.prevent="onAppExport(scope.row)" type="text" class="action-btn"><span class="el-icon-sold-out" style="color:#4caf50;"></span> 导出</el-button>
+                        <el-button @click.native.prevent="onAppDeployEdit(scope.$index, scope.row)" type="text" class="action-btn">编辑</el-button>
+                        <el-button @click.native.prevent="onAppDeployDelete(scope.$index, scope.row)" type="text" class="action-btn">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -59,6 +61,8 @@
                 :visible.sync="dialog.appDeploy.show" 
                 :destroy-on-close="true"
                 :append-to-body="true"
+                :close-on-click-modal="false"
+                :close-on-press-escape="false"
                 v-if="dialog.appDeploy.show">
                 <el-form :model="dialog.appDeploy.data" 
                     :rules="dialog.appDeploy.rules" 
@@ -176,7 +180,41 @@
                         <el-button type="default" @click="onResetForm" v-if="dialog.appDeploy.action==='new'">重置</el-button>
                         <el-button type="primary" @click="onAppDeployHandler" :loading="dialog.appDeploy.loading">发布</el-button>
                     </el-form-item>
-                    </el-form>
+                </el-form>
+            </el-dialog>
+            <el-dialog :title="'应用导出 ' + dialog.appExport.data.dfs" 
+                :visible.sync="dialog.appExport.show" 
+                :destroy-on-close="true"
+                :append-to-body="true"
+                v-if="dialog.appExport.show">
+                <el-form :model="dialog.appExport.data" 
+                    ref="appExportForm" 
+                    label-width="100px" 
+                    v-if="dialog.appExport.data">
+                    <el-form-item label="应用名称" prop="title">
+                        <el-input :value="dialog.appExport.data.title" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="版本" prop="version">
+                        <el-input :value="dialog.appExport.data.version" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="作者" prop="author">
+                        <el-input :value="dialog.appExport.data.author" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="文件系统" prop="dfs">
+                        <el-input :value="dialog.appExport.data.dfs" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="导出内容">
+                        <el-checkbox-group v-model="dialog.appExport.selected">
+                            <el-checkbox label="web">WEB</el-checkbox>
+                            <el-checkbox label="rule">规则</el-checkbox>
+                            <el-checkbox label="class">类</el-checkbox>
+                        </el-checkbox-group>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="default" @click="dialog.appExport.show = false;">取消</el-button>
+                        <el-button type="primary" @click="onAppExportHandler" :loading="dialog.appExport.loading">导出</el-button>
+                    </el-form-item>
+                </el-form>
             </el-dialog>
         </el-main>
 
@@ -206,6 +244,12 @@ export default {
                 }
             },
             dialog: {
+                appExport:{
+                    loading: false,
+                    show: false,
+                    data: null,
+                    selected: ['web']
+                },
                 appDeploy:{
                     loading: false,
                     show: false,
@@ -228,7 +272,7 @@ export default {
                         count: 0,
                         company: '',
                         company_desc: '',
-                        author: '',
+                        author: 'wecise',
                         tester: '',
                         auditor: '',
                         ctime: _.now(),
@@ -317,7 +361,7 @@ export default {
                                             count: 0,
                                             company: '',
                                             company_desc: '',
-                                            author: '',
+                                            author: 'wecise',
                                             tester: '',
                                             auditor: '',
                                             ctime: _.now(),
@@ -343,7 +387,9 @@ export default {
                 this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( rtn=>{
                     this.dialog.appDeploy.show = false;
                     this.dialog.appDeploy.show = false;
+                    this.dialog.appDeploy.loading = false;
                     this.initDeployedApp();
+                    this.$message.success("应用发布成功 " + this.dialog.appDeploy.data.title || this.dialog.appDeploy.data.name);
                 }).catch((err)=>{
                     console.error(err);
                     this.dialog.appDeploy.loading = false;
@@ -356,6 +402,9 @@ export default {
                 this.m3.dfsUnZip(this.dialog.appDeploy.data, file).then( rtn=>{
                     this.dialog.appDeploy.data.dfs = rtn.message[0];
                     toClass();
+                }).catch(err=>{
+                    this.$message.error("应用发布失败 " + err);
+                    this.dialog.appDeploy.loading = false;
                 });
             } else {
                 toClass();
@@ -378,13 +427,13 @@ export default {
 
                 // in class
                 let param = encodeURIComponent( JSON.stringify({action: 'd', param: row}) );
-                this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( rtn=>{
+                this.m3.callFS("/matrix/m3appstore/appStore.js", param).then( ()=>{
                     
                     this.initDeployedApp();
 
                     // in dfs
-                    this.m3.dfsDelete({parent:row.parent,name:row.name}).then( (rtn)=>{
-                        
+                    this.m3.dfsDelete({parent:row.dfs,name:row.name}).then( rtn=>{
+                        console.log(rtn)
                     });
                 });
 
@@ -394,6 +443,35 @@ export default {
                     message: "操作已取消"
                 })
             });
+        },
+        onRunning(row){
+            let url=`/static${row.dfs}/index.html`;
+            let target="_blank";
+            window.open(url,target);
+        },
+        onAppExport(row){
+            this.dialog.appExport.show = true;
+            this.dialog.appExport.data = row;
+        },
+        onAppExportHandler(){
+            this.dialog.appExport.loading = true;
+            // 只导出web
+            if(_.includes(this.dialog.appExport.selected,'web') && this.dialog.appExport.selected.length === 1){
+                let param = {srcpath: this.dialog.appExport.data.dfs};
+                this.m3.dfsZip(param).then(res=>{
+                    let FileSaver = require('file-saver');
+                    let blob = new Blob([res], {type: "application/octet-stream"});
+                    const fileName = `${window.location.host}_${window.auth.signedUser.Company.name}_${this.dialog.appExport.data.title}_${this.moment().format("YYYY-MM-DD_HH:mm:SS")}.zip`;
+                    FileSaver.saveAs(blob, fileName);
+                    
+                    this.dialog.appExport.loading = false;
+
+                }).catch(err=>{
+                    console.error(err)
+                    this.dialog.appExport.loading = false;
+                })
+            }
+
         }
     }
 }
@@ -404,6 +482,10 @@ export default {
         font-size: 20px;
         padding: 5px;
         color: #252d47;
+    }
+
+    .action-btn{
+        color: #9a9ca2;
     }
 </style>
 <style>
@@ -418,9 +500,10 @@ export default {
         width: 80px;
         height: 30px;
     }
-    .deploy-app-table.el-table .el-table__body-wrapper:not(#smartGroupTable .event-list.el-table .el-table__body-wrapper) {
+
+    /* .deploy-app-table.el-table .el-table__body-wrapper:not(#smartGroupTable .event-list.el-table .el-table__body-wrapper) {
         overflow: auto;
         position: relative;
         height: calc(100% - 45px)!important;
-    }
+    } */
 </style>
