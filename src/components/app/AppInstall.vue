@@ -53,16 +53,29 @@
                                         </el-radio-group>
                                     </el-form-item>
                                     <el-form-item label="选择应用" v-if="dialog.appInstall.data.selected=='0'">
-                                        <el-select v-model="deployedApps.value" placeholder="请选择">
-                                            <el-option
-                                                v-for="item in deployedApps.list"
-                                                :key="item.id"
-                                                :label="item.name"
-                                                :value="item.id">
-                                                <span style="float: left">{{ item.cnname || item.enname || item.name}} </span>
-                                                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.dfs }}</span>
-                                            </el-option>
-                                        </el-select>
+                                        <el-input :value="deployedApps.selected.title + ' ' + deployedApps.selected.version" 
+                                            style="width:auto;">
+                                            <el-select v-model="deployedApps.value"
+                                                slot="prepend"
+                                                @change="onAppSelectChange"
+                                                style="width:40px;"
+                                                placeholder="">
+                                                <el-option
+                                                    v-for="item in deployedApps.list"
+                                                    :key="item.id"
+                                                    :label="item.name"
+                                                    :value="item.id">
+                                                    <span style="float: left;font-size:14px;">{{ item.title || item.name}} <span style="font-size:8px;color:#8492a6;">{{item.version}}</span> </span>
+                                                    <span style="float: right; color: #8492a6; font-size: 8px">
+                                                        <span style="padding-left: 20px;">作者：{{ item.author }}</span>  
+                                                        <span style="padding-left: 10px;">目录：{{ item.dfs }}</span>  
+                                                        <span style="padding-left: 10px;">发布时间：{{ item.ctime | formatTime }}</span>
+                                                        <span style="padding-left: 10px;">更新时间：{{ item.mtime | formatTime }}</span>
+                                                    </span>
+                                                    
+                                                </el-option>
+                                            </el-select>
+                                        </el-input>
                                     </el-form-item>
                                     <el-form-item style="position:absolute;right:10px;">
                                         <el-button type="text" @click="dialog.appInstall.tabs.activeName='icon'" style="background:#444444;border-radius:15px!important;padding:20px;">
@@ -158,6 +171,9 @@ export default {
             model: null,
             deployedApps: {
                 value: null,
+                selected: {
+                    title: ""
+                },
                 list: []
             },
             installedApps: {
@@ -207,6 +223,9 @@ export default {
         },
         pickIcon(icon){
             return `/static/assets/images/apps/png/${icon}`;
+        },
+        formatTime(data){
+            return new Date(data).toLocaleString();
         }
     },
     methods: {
@@ -239,7 +258,10 @@ export default {
                 this.icon.value = `${this.upload.url}/creative.png`;
             } );   
         },
-        
+        onAppSelectChange(data){
+            console.log(data);
+            this.deployedApps.selected = _.find(this.deployedApps.list,{id:data});
+        },
         onTriggerRadioClick(item){
             this.$refs['radio_'+item.id][0].$el.click();
         },

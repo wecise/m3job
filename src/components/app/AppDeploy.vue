@@ -9,7 +9,7 @@
             </el-tooltip>
 
         </el-header>
-        <el-main>
+        <el-main style="overflow:hidden;">
             <el-table
                 :data="deploy.dt.rows"
                 :highlight-current-row="true"
@@ -18,6 +18,7 @@
                 stripe
                 class="deploy-app-table"
                 style="width:100%;"
+                height="calc(100vh - 215px)"
                 v-if="deploy.dt.rows">
                 <template v-for="(item,index) in deploy.dt.columns">
                     <el-table-column 
@@ -104,7 +105,7 @@
                                 <el-input type="textarea" v-model="dialog.appDeploy.data.desc"></el-input>
                             </el-form-item>
                             <el-form-item label="文件系统" prop="dfs">
-                                <el-input v-model="dialog.appDeploy.data.dfs" disabled></el-input>
+                                <el-input v-model="dialog.appDeploy.data.dfs"></el-input>
                             </el-form-item>
                         </el-tab-pane>
                         <el-tab-pane label="管理信息" name="third">
@@ -186,6 +187,7 @@
                 :visible.sync="dialog.appExport.show" 
                 :destroy-on-close="true"
                 :append-to-body="true"
+                custom-class="dialog-appExport"
                 v-if="dialog.appExport.show">
                 <el-form :model="dialog.appExport.data" 
                     ref="appExportForm" 
@@ -206,9 +208,26 @@
                     <el-form-item label="导出内容">
                         <el-checkbox-group v-model="dialog.appExport.selected">
                             <el-checkbox label="web">WEB</el-checkbox>
+                            <el-checkbox label="api">接口</el-checkbox>
                             <el-checkbox label="rule">规则</el-checkbox>
                             <el-checkbox label="class">类</el-checkbox>
                         </el-checkbox-group>
+                    </el-form-item>
+                    <el-form-item>
+                        
+                        <div v-if="dialog.appExport.selected.includes('rule')">
+                            <el-divider content-position="left">选择规则</el-divider>
+                            <el-card>
+                                <RuleView root="/" @node-click="onRuleTreeSelected"></RuleView>
+                            </el-card>
+                        </div>
+                        
+                        <div  v-if="dialog.appExport.selected.includes('class')">
+                            <el-divider content-position="left">选择类</el-divider>
+                            <el-card>
+                                <EntityView root="/" @node-click="onEntityTreeSelected"></EntityView>
+                            </el-card>
+                        </div>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="default" @click="dialog.appExport.show = false;">取消</el-button>
@@ -224,11 +243,15 @@
 <script>
 import _ from 'lodash';
 import TagView from '../tags/TagView';
+import EntityView from './EntityView.vue';
+import RuleView from './RuleView.vue';
 
 export default {
     name: 'AppDeploy',
     components: {
-        TagView
+        TagView,
+        EntityView,
+        RuleView
     },
     data(){
         return {
@@ -248,7 +271,8 @@ export default {
                     loading: false,
                     show: false,
                     data: null,
-                    selected: ['web']
+                    selected: ['web','api'],
+                    entity: null
                 },
                 appDeploy:{
                     loading: false,
@@ -454,14 +478,14 @@ export default {
             this.dialog.appExport.data = row;
         },
         onAppExportHandler(){
-            this.dialog.appExport.loading = true;
-            // 只导出web
-            if(_.includes(this.dialog.appExport.selected,'web') && this.dialog.appExport.selected.length === 1){
+            
+            let exportWeb = (type)=>{
+                
                 let param = {srcpath: this.dialog.appExport.data.dfs};
                 this.m3.dfsZip(param).then(res=>{
                     let FileSaver = require('file-saver');
                     let blob = new Blob([res], {type: "application/octet-stream"});
-                    const fileName = `${window.location.host}_${window.auth.signedUser.Company.name}_${this.dialog.appExport.data.title}_${this.moment().format("YYYY-MM-DD_HH:mm:SS")}.zip`;
+                    const fileName = `【${type}】${window.location.host}_${window.auth.signedUser.Company.name}_${this.dialog.appExport.data.title}_${this.moment().format("YYYY-MM-DD_HH:mm:SS")}.zip`;
                     FileSaver.saveAs(blob, fileName);
                     
                     this.dialog.appExport.loading = false;
@@ -470,8 +494,56 @@ export default {
                     console.error(err)
                     this.dialog.appExport.loading = false;
                 })
-            }
+            };
 
+            let exportApi = (type)=>{
+                this.dialog.appExport.loading = true;
+                let param = {srcpath: this.dialog.appExport.data.dfs.replace(/\/app/,'/script')};
+                this.m3.dfsZip(param).then(res=>{
+                    let FileSaver = require('file-saver');
+                    let blob = new Blob([res], {type: "application/octet-stream"});
+                    const fileName = `【${type}】${window.location.host}_${window.auth.signedUser.Company.name}_${this.dialog.appExport.data.title}_${this.moment().format("YYYY-MM-DD_HH:mm:SS")}.zip`;
+                    FileSaver.saveAs(blob, fileName);
+                    
+                    this.dialog.appExport.loading = false;
+
+                }).catch(err=>{
+                    console.error(err)
+                    this.dialog.appExport.loading = false;
+                })
+            };
+
+            let exportRule = (type)=>{
+
+            };
+
+            let exportClass = (type)=>{
+
+            };
+
+            this.dialog.appExport.selected.forEach(v=>{
+                
+                this.dialog.appExport.loading = true;
+
+                if(v === 'web'){
+                    exportWeb(v);
+                } else if(v === 'api'){
+                    exportApi(v);
+                } else if(v === 'rule'){
+                    exportRule(v);
+                } else {
+                    exportClass(v);
+                }
+
+
+            })
+
+        },
+        onEntityTreeSelected(data){
+            this.dialog.appExport.entity = data;
+        },
+        onRuleTreeSelected(data){
+            
         }
     }
 }
@@ -487,6 +559,7 @@ export default {
     .action-btn{
         color: #9a9ca2;
     }
+
 </style>
 <style>
     .app-upload{
@@ -506,4 +579,9 @@ export default {
         position: relative;
         height: calc(100% - 45px)!important;
     } */
+
+    .dialog-appExport  .el-card__body{
+        padding: 0px;
+        margin-bottom: 20px!important;
+    }
 </style>
