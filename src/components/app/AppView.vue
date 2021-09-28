@@ -49,3 +49,10 @@ export default{
     }
     
 </style>
+
+<style>
+    .el-tabs--border-card>.el-tabs__header {
+        background-color: #f2f2f2;
+        border-bottom: 1px solid #f2f2f2;
+    }
+</style>
