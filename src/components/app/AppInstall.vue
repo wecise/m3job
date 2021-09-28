@@ -53,7 +53,7 @@
                                         </el-radio-group>
                                     </el-form-item>
                                     <el-form-item label="选择应用" v-if="dialog.appInstall.data.selected=='0'">
-                                        <el-input :value="deployedApps.selected.title + ' ' + deployedApps.selected.version" 
+                                        <el-input :value="deployedApps.selected.title ? deployedApps.selected.title + ' ' + deployedApps.selected.version : ''" 
                                             style="width:auto;">
                                             <el-select v-model="deployedApps.value"
                                                 slot="prepend"
@@ -259,7 +259,6 @@ export default {
             } );   
         },
         onAppSelectChange(data){
-            console.log(data);
             this.deployedApps.selected = _.find(this.deployedApps.list,{id:data});
         },
         onTriggerRadioClick(item){
