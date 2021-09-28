@@ -297,11 +297,14 @@ export default {
             }
             
             this.m3.callFS("/matrix/m3appstore/app.js",encodeURIComponent(JSON.stringify(item))).then( (rtn)=>{
-                if( _.lowerCase(rtn.status) == "ok"){       
+                if( _.lowerCase(rtn.status) == "ok"){   
+
                     this.$message({
                         type: "info",
                         message: "应用安装成功"
                     });
+                    
+                    this.eventHub.$emit("app-refresh");
                     
                     this.dialog.appInstall.show = false;
                 }
@@ -321,6 +324,8 @@ export default {
                         
                         this.init();
                         this.dialog.appInstall.show = false;
+
+                        this.eventHub.$emit("app-refresh");
 
                     } else {
                         this.$message({

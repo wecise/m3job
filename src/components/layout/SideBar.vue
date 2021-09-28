@@ -125,6 +125,10 @@ export default{
     },
     mounted(){
         this.defaultActive = window.location.pathname;
+
+        this.eventHub.$on("app-refresh",()=>{
+            this.init();
+        });
     },
     filters:{
         pickIcon(icon){
