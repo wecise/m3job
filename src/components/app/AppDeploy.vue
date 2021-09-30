@@ -50,6 +50,13 @@
                     </el-table-column>
                 </template>
                 <el-table-column label="操作" width="190" fixed="right">
+                    <template slot="header">
+                        <el-input v-model="deploy.dt.filter"
+                        size="mini"
+                        placeholder="关键字"
+                        clearable>
+                        </el-input>
+                    </template>
                     <template slot-scope="scope">
                         <el-button @click.native.prevent="onRunning(scope.row)" type="text" class="action-btn"><span class="el-icon-platform-eleme" style="color:#4caf50;"></span> 运行</el-button>
                         <el-button @click.native.prevent="onAppExport(scope.row)" type="text" class="action-btn"><span class="el-icon-sold-out" style="color:#4caf50;"></span> 导出</el-button>
@@ -259,7 +266,8 @@ export default {
                 dt: {
                     rows: [],
                     columns: [],
-                    selected: []
+                    selected: [],
+                    filter: ""
                 },
                 rowClass: {
                     type: String,
@@ -321,6 +329,17 @@ export default {
                             { required: true, message: '请输入应用描述', trigger: 'blur' }
                         ]
                     }
+                }
+            }
+        }
+    },
+    watch:{
+        'deploy.dt.filter':{
+            handler(val){
+                if(_.isEmpty(val)){
+                    this.onRefresh();
+                }else {
+                    this.deploy.dt.rows = this.deploy.dt.rows.filter(data => !val || data.name.toLowerCase().includes(val.toLowerCase()))
                 }
             }
         }
