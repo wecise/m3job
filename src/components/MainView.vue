@@ -1,11 +1,11 @@
 <template>
 
-  <AppView ></AppView>
+  <IndexView ></IndexView>
   
 </template>
 
 <script>
-import AppView from './app/AppView';
+import IndexView from './job/index.vue';
 
 
 export default {
@@ -14,7 +14,7 @@ export default {
     global: Object
   },
   components:{
-    AppView
+    IndexView
   }
 }
 </script>
